@@ -47,7 +47,7 @@ const updateJob = async (req, res) => {
   );
 
   if(!job){
-    throw new NotFoundError(`No job with id ${jobId}`)
+    throw new NotFoundError(`Job Not Found`)
   }
   res.status(StatusCodes.OK).json({job});
 };
@@ -60,7 +60,7 @@ const deleteJob = async (req, res) => {
   )
 
   if(!job){
-    throw new BadRequestError(`No job with id ${jobId}`)
+    throw new BadRequestError(`Job Not Found`)
   }
   res.status(StatusCodes.OK).send("Deleted")
 };
