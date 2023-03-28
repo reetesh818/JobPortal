@@ -22,6 +22,39 @@ const UserSchema = new mongoose.Schema({
     required: [true, "Please provide password"],
     minLength: 6,
   },
+  dob:{
+    type:Date,
+    default:Date.now,
+    required:[true,'Please provide date of birth'],
+  },
+  roll:{
+    type:String,
+    required:[true,'Please provide roll number']
+  },
+  gender:{
+    type:String,
+    enum:["male","female","other"],
+    default:"male"
+  },
+  course:{
+    type:String,
+    required:[true,'Please provide course']
+  },
+  branch:{
+    type:String,
+  },
+  phone:{
+    type:String,
+    required:[true,"Please provide phone number"],
+  },
+  passyear:{
+    type:String,
+    required:[true,"Please provide pass year"]
+  },
+  resume:{
+    data:Buffer,
+    contentType:String
+  }
 });
 UserSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
