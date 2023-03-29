@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, UnauthenticatedError, NotFoundError } = require("../errors");
+const {
+  BadRequestError,
+  UnauthenticatedError,
+  NotFoundError,
+} = require("../errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
@@ -16,7 +20,11 @@ const getSingleUser = async (req, res) => {
   const {
     user: { userId },
   } = req;
-  console.log(userId);
+  const {id} = req.params 
+
+  if(id!==userId){
+    throw new NotFoundError("User Not Found")
+  }
   const user = await User.findOne({ _id: userId });
   res.status(StatusCodes.OK).json({ user });
 };
@@ -26,6 +34,12 @@ const updateUser = async (req, res) => {
     body: { email },
     user: { userId },
   } = req;
+
+  const {id} = req.params 
+
+  if(id!==userId){
+    throw new NotFoundError("User Not Found")
+  }
 
   if (email === "") {
     throw new BadRequestError("Email field cannot be empty");
@@ -39,14 +53,63 @@ const updateUser = async (req, res) => {
     { new: true, runValidators: true }
   );
 
+  if (!user) {
+    throw new NotFoundError(`User Not Found`);
+  }
+  res.status(StatusCodes.OK).json({ user });
+};
+
+const applyJob = async(req,res) => {
+  const {
+    user:{userId} 
+  } = req
+
+  const {id} = req.params 
+
+  if(id!==userId){
+    throw new NotFoundError("User Not Found")
+  }
+
+  const user = await User.findOneAndUpdate({_id:userId},
+    {$addToSet:{jobs:["hey"]}})
   if(!user){
-    throw new NotFoundError(`User Not Found`)
+    throw new NotFoundError("User Not Found")
   }
   res.status(StatusCodes.OK).json({user})
+}
+
+
+const getAppliedJobs = async (req, res) => {
+  const {user:{userId}} = req
+  const {id} = req.params 
+
+  if(id!==userId){
+    throw new NotFoundError("User Not Found")
+  }
+  const { jobs } = await User.findOne({ _id: userId });
+  if(!jobs){
+    throw new NotFoundError("User Not Found")
+  }
+  res.status(StatusCodes.OK).json({ jobs });
 };
+
+const deleteUser = async(req,res) => {
+  const {user:{userId}} = req
+  const {id} = req.params
+  if(id!=userId){
+    throw new NotFoundError("User Not Found")
+  }
+  const result = await User.findOneAndDelete({_id:userId})
+  res.status(StatusCodes.OK).json({
+    msg:"Deleted"
+  })
+}
 
 module.exports = {
   getAllUsers,
   getSingleUser,
-  updateUser
+  updateUser,
+  getAppliedJobs,
+  applyJob,
+  deleteUser
 };

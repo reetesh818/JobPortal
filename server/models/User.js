@@ -54,6 +54,10 @@ const UserSchema = new mongoose.Schema({
   resume:{
     data:Buffer,
     contentType:String
+  },
+  jobs:{
+    type:[String],
+    default:[]
   }
 });
 UserSchema.pre("save", async function (next) {

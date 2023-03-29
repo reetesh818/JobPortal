@@ -12,6 +12,7 @@ const getJob = async (req, res) => {
     user: { userId },
     params: { id: jobId },
   } = req;
+  
   const job = await Job.findOne({
     _id: jobId,
     createdBy: userId,
@@ -35,7 +36,6 @@ const updateJob = async (req, res) => {
     params: { id: jobId },
   } = req;
 
-  
   if (company === "" || position === "") {
     throw new BadRequestError("Company or Position fields cannot be empty");
   }

@@ -20,6 +20,10 @@ const JobSchema = new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:'User',
         required:[true,'Please provide User']
+    },
+    applicants:{
+        type:[String],
+        default:[]
     }
 },{
     timestamps:true
