@@ -17,15 +17,14 @@ const getAllUsers = async (req, res) => {
 };
 
 const getSingleUser = async (req, res) => {
-  const {
-    user: { userId },
-  } = req;
+ 
   const {id} = req.params 
 
-  if(id!==userId){
+  
+  const user = await User.findOne({ _id: id });
+  if(!user){
     throw new NotFoundError("User Not Found")
   }
-  const user = await User.findOne({ _id: userId });
   res.status(StatusCodes.OK).json({ user });
 };
 
