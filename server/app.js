@@ -22,6 +22,7 @@ const userRouter = require('./routes/users')
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
+const cookieParser = require('cookie-parser');
 
 app.set('trust proxy',1);
 app.use(rateLimit({
@@ -31,9 +32,11 @@ app.use(rateLimit({
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 }));
 app.use(express.json());
+app.use(express.urlencoded({extended:true}))
 app.use(helmet());
 app.use(cors());
 app.use(xss());
+app.use(cookieParser())
 // extra packages
 
 // routes

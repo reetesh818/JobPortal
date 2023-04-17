@@ -55,12 +55,19 @@ const UserSchema = new mongoose.Schema({
     data:Buffer,
     contentType:String
   },
+  location: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+    default: 'my city',
+  },
   jobs:{
     type:[String],
     default:[]
   }
 });
 UserSchema.pre("save", async function (next) {
+  if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();

@@ -15,11 +15,12 @@ const upload = multer({ storage: storage });
 
 
 
-const {login,register} = require('../controllers/auth')
+const {login,register,logout} = require('../controllers/auth')
 
 
 router.post('/login',login)
 router.post('/register',upload.single('resume'),register)
+router.post('/logout',logout);
 
 
 

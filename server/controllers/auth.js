@@ -1,18 +1,20 @@
 
 const User = require('../models/User')
 const {StatusCodes} = require('http-status-codes')
-const {BadRequestError,UnauthenticatedError}  = require('../errors')
+const {BadRequestError,UnauthenticatedError, CustomAPIError}  = require('../errors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const path = require('path')
 
+export const cookieOptions = {
+    expires: new Date(Date.now + 3 * 24 * 60 * 60 * 1000),
+    httpOnly: true
+}
+
+
 const register = async(req,res) => {
-    //custom error - we are also using mongoose validation therefore this custom is not necessarily required here
-    //although we can add it for our own debuggin purposes
-    // if(!name || !email || !password){
-    //     throw new BadRequestError("Please provide name,email and password")
-    // }
+   
     const parent  = path.resolve(path.dirname(''), "./");
     let data = {
         ...req.body
@@ -23,9 +25,13 @@ const register = async(req,res) => {
     }
     // console.log(req.file);
 
-    console.log(data)
+    // console.log(data)
     const user = await User.create(data)
     const token = user.createJWT();
+
+    user.password = undefined;
+
+    res.cookie("token", token, cookieOptions);
     res.status(StatusCodes.CREATED).json({user:{name:user.getName()},token})
 }
 
@@ -36,7 +42,7 @@ const login = async(req,res) => {
         throw new BadRequestError('Please provide email and password')
     }
 
-    const user = await User.findOne({email})
+    const user = await User.findOne({email}).select('+password')
 
     
     if(!user){
@@ -49,11 +55,32 @@ const login = async(req,res) => {
         throw new UnauthenticatedError("Invalid Credentials")
     }
     const token = user.createJWT();
+    user.password = undefined;
+    res.cookie('token',token,cookieOptions)
     console.log(user);
     res.status(StatusCodes.OK).json({user:{name:user.name},token})
 }
 
+export const logout = asyncHandler(async(req,res) => {
+    res.cookie("token",null,{expires:new Date(Date.now()),httpOnly:true})
+    res.status(200).json({
+        success:true,
+        message:'Logged Out'
+    })
+})
+
+export const getProfile = async(req,res) => {
+    const {user} = req
+    
+    if(!user){
+        throw new CustomAPIError("user not found",401);
+    }
+    res.status(200).json({
+        success:true,
+        user
+    })
+}
 
 module.exports = {
-    register,login
+    register,login, logout
 }
